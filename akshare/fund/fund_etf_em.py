@@ -12,9 +12,12 @@ import pandas as pd
 import requests
 
 from akshare.utils.func import fetch_paginated_data
+from ..utils.addon import cached, get_repeat
+
 
 
 @lru_cache()
+@cached
 def _fund_etf_code_id_map_em() -> dict:
     """
     东方财富-ETF代码和市场标识映射
@@ -256,17 +259,17 @@ def fund_etf_hist_em(
     try:
         market_id = code_id_dict[symbol]
         params.update({"secid": f"{market_id}.{symbol}"})
-        r = requests.get(url, timeout=15, params=params)
+        r = get_repeat(url, timeout=15, params=params)
         data_json = r.json()
     except KeyError:
         market_id = 1
         params.update({"secid": f"{market_id}.{symbol}"})
-        r = requests.get(url, timeout=15, params=params)
+        r = get_repeat(url, timeout=15, params=params)
         data_json = r.json()
         if not data_json["data"]:
             market_id = 0
             params.update({"secid": f"{market_id}.{symbol}"})
-            r = requests.get(url, timeout=15, params=params)
+            r = get_repeat(url, timeout=15, params=params)
             data_json = r.json()
     if not (data_json["data"] and data_json["data"]["klines"]):
         return pd.DataFrame()

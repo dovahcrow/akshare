@@ -11,9 +11,12 @@ import pandas as pd
 import requests
 
 from akshare.utils.func import fetch_paginated_data
+from ..utils.addon import cached
+
 
 
 @lru_cache()
+@cached
 def index_code_id_map_em() -> dict:
     """
     东方财富-股票和市场代码
